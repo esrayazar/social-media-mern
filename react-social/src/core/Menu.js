@@ -1,22 +1,12 @@
 import React from 'react'
 import {Link, withRouter} from 'react-router-dom'
+import { signout, isAuthenticated } from '../auth'
 
 const isActive = (history, path) =>{
     if(history.location.pathname === path) return {color: "#ff9900"}
         else return {color: "#ffffff"}
 }
-export const signout = next => {
-    if (typeof window !== "undefined") localStorage.removeItem("jwt");
-    next();
-    return fetch("http://localhost:8080/signout", {
-        method: "GET"
-    })
-        .then(response => {
-        console.log('signout', response)
-        return response.json()
-    })
-    .catch(err => console.log(err));
-}
+
 const Menu =({history}) =>(
     <div>
        <ul className="nav nav-tabs bg-primary">
@@ -26,7 +16,9 @@ const Menu =({history}) =>(
                 </Link>
             </li>
 
-            <li className="nav-item">
+           {!isAuthenticated() && (
+               <>
+                <li className="nav-item">
                 <Link
                     className= "nav-link" style={isActive(history, "/signin")} to= "/signin"
                 >
@@ -41,8 +33,12 @@ const Menu =({history}) =>(
                     Sign Up
                 </Link>
             </li>
+            </>
+           )}
 
-            <li className="nav-item">
+            {isAuthenticated() &&(
+               <>
+                    <li className="nav-item">
                 <a
                     className= "nav-link" 
                     style={
@@ -54,6 +50,17 @@ const Menu =({history}) =>(
                     Sign Out
                 </a>
             </li>
+            <li className="nav-item">
+             
+                    <Link to={`/user/${isAuthenticated().user._id}`}
+                    style={{color: "#fff" }}
+                    className="nav-link"
+                    >
+                    {`${isAuthenticated().user.name}'s profile`}
+                    </Link>
+            </li>
+               </>
+            )}
             
         </ul>
 
