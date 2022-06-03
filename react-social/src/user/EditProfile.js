@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import {isAuthenticated} from "../auth";
-import {read, update} from "./apiUser";
+import {read, update,updateUser} from "./apiUser";
 import DefaultProfile from "../images/profilepic.jpg"
 
  class EditProfile extends Component {
@@ -53,17 +53,17 @@ import DefaultProfile from "../images/profilepic.jpg"
             return false
         }
         if(name.length ===0){
-            this.setState({error:" Name is required"})
+            this.setState({error:" Name is required", loading:false})
             return false
         }
         if(!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-            this.setState({error:" A valid Email is required"})
+            this.setState({error:" A valid Email is required",loading:false})
             return false
         }
 
         if(password.length >=1 && password.length<=5){
             this.setState({
-                error:" Password must be at least characters long"})
+                error:" Password must be at least characters long",loading:false})
             return false
         }
         return true
@@ -90,8 +90,12 @@ import DefaultProfile from "../images/profilepic.jpg"
 
         update(userId, token, this.userData).then(data =>{
            if(data.error) this.setState({error: data.error})
-           else this.setState({
-              redirectToProfile:true
+           else 
+           updateUser(data, () =>{
+            this.setState({
+                redirectToProfile:true
+           })
+          
            });
        });
         }
