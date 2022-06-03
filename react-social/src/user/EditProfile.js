@@ -16,7 +16,8 @@ import DefaultProfile from "../images/profilepic.jpg"
             redirectToProfile:false,
             error: "",
             fileSize: 0,
-            loading: false
+            loading: false,
+            about: ""
         };
     }
 
@@ -31,8 +32,8 @@ import DefaultProfile from "../images/profilepic.jpg"
                     id: data._id,
                     name: data.name, 
                     email: data.email,
-                    error: '',
-                    fileSize: 0 
+                    error: "",
+                    about: data.about
                 });
             }
         });
@@ -97,7 +98,7 @@ import DefaultProfile from "../images/profilepic.jpg"
     };
 
 
-    signupForm = (name, email,password)=>(
+    signupForm = (name, email,password, about)=>(
         <form>
             <div className="form-group">
             <label className="text-muted">Profile Photo</label>
@@ -116,6 +117,10 @@ import DefaultProfile from "../images/profilepic.jpg"
             <input onChange={this.handleChange("email")} type="email" className="form-control" value={email}/>
         </div>
         <div className="form-group">
+            <label className="text-muted">About</label>
+            <textarea onChange={this.handleChange("about")} type="text" className="form-control" value={about}/>
+        </div>
+        <div className="form-group">
             <label className="text-muted">Password</label>
             <input onChange={this.handleChange("password")} type="password" className="form-control" value={password}/>
         </div>
@@ -125,7 +130,7 @@ import DefaultProfile from "../images/profilepic.jpg"
     )
 
   render() {
-    const { id,name, email,password, redirectToProfile, error,loading} =this.state
+    const { id,name, email,password, redirectToProfile, error,loading,about} =this.state
 
     if(redirectToProfile){
        return <Redirect to={`/user/${id}`}/>
@@ -157,7 +162,7 @@ import DefaultProfile from "../images/profilepic.jpg"
           onError= {i =>(i.target.src =`${DefaultProfile}`)}
           alt={name}/>
 
-          {this.signupForm(name, email,password)}
+          {this.signupForm(name, email,password,about)}
       </div>
     )
   }
