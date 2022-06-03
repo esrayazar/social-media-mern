@@ -55,6 +55,21 @@ const Menu =({history}) =>(
                     Sign Out
                 </span>
             </li>
+
+            <li className="nav-item">
+             
+                    <Link 
+                    to={`/findpeople`}
+                    style={isActive(
+                        history,
+                        `/findpeople`
+                        )}
+                    className="nav-link"
+                    >
+                    Find people
+                    </Link>
+            </li>
+
             <li className="nav-item">
              
                     <Link 
