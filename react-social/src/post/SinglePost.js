@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {singlePost, remove} from './apiPost'
+import {singlePost, remove, like, unlike} from './apiPost'
 import DefaultPost from '../images/mountains.jpg'
 import { Link, Redirect } from 'react-router-dom';
 import {isAuthenticated} from "../auth"
@@ -7,8 +7,17 @@ import {isAuthenticated} from "../auth"
  class SinglePost extends Component {
      state = {
          post: '', 
-         redirectToHome: false
+         redirectToHome: false,
+         like: false,
+         likes: 0
      }
+
+     checkLike = (likes) =>{
+         const userId =isAuthenticated().user._id;
+         let match = likes.indexOf(userId) !== -1;
+         return match
+     }
+
      componentDidMount = () => {
         const postId = this.props.match.params.postId;
         singlePost(postId).then(data => {
@@ -16,12 +25,38 @@ import {isAuthenticated} from "../auth"
                 console.log(data.error);
             } else {
                 this.setState({
-                    post: data
+                    post: data,
+                    likes: data.likes.length,
+                    like: this.checkLike(data.likes)
                 
                 });
             }
         });
     };
+
+    likeToggle = () => {
+        if (!isAuthenticated()) {
+            this.setState({ redirectToSignin: true });
+            return false;
+        }
+        let callApi = this.state.like ? unlike : like;
+        const userId = isAuthenticated().user._id;
+        const postId = this.state.post._id;
+        const token = isAuthenticated().token;
+
+        callApi(userId, token, postId).then(data => {
+            if (data.error) {
+                console.log(data.error);
+            } else {
+                this.setState({
+                    like: !this.state.like,
+                    likes: data.likes.length
+                });
+            }
+        });
+    };
+
+
     deletePost = () =>{
         const postId = this.props.match.params.postId;
         const token = isAuthenticated().token
@@ -48,6 +83,8 @@ import {isAuthenticated} from "../auth"
     const posterName = post.postedBy
         ? post.postedBy.name
         : " Unknown";
+
+    const {like, likes} = this.state
         
         return (
             <div className= "card-body">
@@ -59,6 +96,9 @@ import {isAuthenticated} from "../auth"
               width: '100%', 
               objectFit: 'cover'}}
               />
+              <h3 onClick={this.likeToggle}>
+                  {likes} Like
+              </h3>
               <p className="card-text">{post.body}</p>
               <br/>
               <p className="font-italic mark">
