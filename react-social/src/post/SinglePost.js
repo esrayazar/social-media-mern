@@ -13,7 +13,7 @@ import {isAuthenticated} from "../auth"
      }
 
      checkLike = (likes) =>{
-         const userId =isAuthenticated().user._id;
+         const userId =isAuthenticated()&& isAuthenticated().user._id;
          let match = likes.indexOf(userId) !== -1;
          return match
      }
@@ -96,9 +96,26 @@ import {isAuthenticated} from "../auth"
               width: '100%', 
               objectFit: 'cover'}}
               />
-              <h3 onClick={this.likeToggle}>
-                  {likes} Like
-              </h3>
+             
+             {like ? (
+                    <h3 onClick={this.likeToggle}>
+                        <i
+                            className="fa fa-thumbs-up text-success bg-dark"
+                            style={{ padding: '10px', borderRadius: '50%' }}
+                        />{' '}
+                        {likes} Like
+                    </h3>
+                ) : (
+                    <h3 onClick={this.likeToggle}>
+                        <i
+                            className="fa fa-thumbs-up text-warning bg-dark"
+                            style={{ padding: '10px', borderRadius: '50%' }}
+                        />{' '}
+                        {likes} Like
+                    </h3>
+                )}
+
+
               <p className="card-text">{post.body}</p>
               <br/>
               <p className="font-italic mark">
@@ -132,7 +149,12 @@ import {isAuthenticated} from "../auth"
       if(this.state.redirectToHome){
           return <Redirect to= {'/'}/>
       }
-      const {post} =this.state
+      const {post,redirectToHome, redirectToSignin} =this.state
+      if (redirectToHome) {
+        return <Redirect to={`/`} />;
+    } else if (redirectToSignin) {
+        return <Redirect to={`/signin`} />;
+    }
     return (
         <div className="container">
              <h2 className=" display-2 mt-5 mb-5">{post.title}</h2>
