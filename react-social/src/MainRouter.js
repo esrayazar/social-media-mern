@@ -9,9 +9,10 @@ import Users from './user/Users';
 import EditProfile from './user/EditProfile';
 import FindPeople from './user/FindPeople';
 import NewPost from './post/NewPost'
+import EditPost from './post/EditPost'
 import SinglePost from './post/SinglePost'
 import PrivateRoute from './auth/PrivateRoute';
-import EditPost from './post/EditPost'
+
 
 
 

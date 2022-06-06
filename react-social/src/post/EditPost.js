@@ -141,6 +141,7 @@ class EditPost extends Component {
             return <Redirect to={`/user/${isAuthenticated().user._id}`} />;
         }
 
+
         return (
             <div className="container">
                 <h2 className="mt-5 mb-5">{title}</h2>
