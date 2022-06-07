@@ -3,24 +3,30 @@ const formidable = require('formidable');
 const fs = require('fs');
 const _ = require("lodash");
 
-exports.postById = (req, res, next,id) => {
+exports.postById = (req, res, next, id) => {
     Post.findById(id)
-    .populate("postedBy", "_id name")
-    .exec((err, post)=>{
-        if(err || !post){
-            return res.status(400).json({
-                error: err
-            })
-        }
-        req.post =post
-        next();
-    })
-}
+        .populate('postedBy', '_id name')
+        .populate('comments.postedBy', '_id name')
+        .populate('postedBy', '_id name role')
+        .select('_id title body created likes comments photo')
+        .exec((err, post) => {
+            if (err || !post) {
+                return res.status(400).json({
+                    error: err
+                });
+            }
+            req.post = post;
+            next();
+        });
+};
+
 
 
 exports.getPosts = (req, res)=>{
    const posts = Post.find()
-   .populate("postedBy", "_id name")
+   .populate('comments', 'text created')
+   //.populate('comments.postedBy', '_id name')
+   .populate('postedBy', '_id name')
    .select("_id title body created likes")
    .sort({created: -1})
    .then((posts)=>{
@@ -63,21 +69,21 @@ exports.createPost = (req, res, next) => {
         });
     });
 };
-exports.postsByUser =(req, res) =>{
-    Post.find({postedBy: req.profile._id})
-    .populate("postedBy", "_id name")
-    .select("_id title body created likes")
-    .sort("_created")
-    .exec((err, posts)=>{
-        if(err){
-            return res.status(400).json({
-                error: err
-            });
-        }
-        res.json(posts);
-
-    });
+exports.postsByUser = (req, res) => {
+    Post.find({ postedBy: req.profile._id })
+        .populate('postedBy', '_id name')
+        .select('_id title body created likes')
+        .sort('_created')
+        .exec((err, posts) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err
+                });
+            }
+            res.json(posts);
+        });
 };
+
 
 exports.isPoster = (req, res, next) => {
     let isPoster =req.post && req.auth && req.post.postedBy._id == req.auth._id
@@ -184,4 +190,39 @@ exports.unlike = (req, res) => {
             }
         }
     );
+};
+
+exports.comment = (req, res) => {
+    let comment = req.body.comment;
+    comment.postedBy = req.body.userId;
+
+    Post.findByIdAndUpdate(req.body.postId, { $push: { comments: comment } }, { new: true })
+        .populate('comments.postedBy', '_id name')
+        .populate('postedBy', '_id name')
+        .exec((err, result) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err
+                });
+            } else {
+                res.json(result);
+            }
+        });
+};
+
+exports.uncomment = (req, res) => {
+    let comment = req.body.comment;
+
+    Post.findByIdAndUpdate(req.body.postId, { $pull: { comments: { _id: comment._id } } }, { new: true })
+        .populate('comments.postedBy', '_id name')
+        .populate('postedBy', '_id name')
+        .exec((err, result) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err
+                });
+            } else {
+                res.json(result);
+            }
+        });
 };
