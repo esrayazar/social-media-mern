@@ -3,13 +3,15 @@ import {singlePost, remove, like, unlike} from './apiPost'
 import DefaultPost from '../images/mountains.jpg'
 import { Link, Redirect } from 'react-router-dom';
 import {isAuthenticated} from "../auth"
+import Comment from './Comment'
 
  class SinglePost extends Component {
      state = {
          post: '', 
          redirectToHome: false,
          like: false,
-         likes: 0
+         likes: 0,
+         comments: []
      }
 
      checkLike = (likes) =>{
@@ -27,12 +29,17 @@ import {isAuthenticated} from "../auth"
                 this.setState({
                     post: data,
                     likes: data.likes.length,
-                    like: this.checkLike(data.likes)
+                    like: this.checkLike(data.likes),
+                    comments: data.comments
                 
                 });
             }
         });
     };
+
+    updateComments =comments =>{
+        this.setState({comments})
+    }
 
     likeToggle = () => {
         if (!isAuthenticated()) {
@@ -149,7 +156,7 @@ import {isAuthenticated} from "../auth"
       if(this.state.redirectToHome){
           return <Redirect to= {'/'}/>
       }
-      const {post,redirectToHome, redirectToSignin} =this.state
+      const {post,redirectToHome, redirectToSignin,comments} =this.state
       if (redirectToHome) {
         return <Redirect to={`/`} />;
     } else if (redirectToSignin) {
@@ -165,6 +172,7 @@ import {isAuthenticated} from "../auth"
                 ):(
                     this.renderPost(post)
                 )}
+                <Comment postId={post._id} comments={comments.reverse()} updateComments={this.updateComments}/>
             
         </div>
      
